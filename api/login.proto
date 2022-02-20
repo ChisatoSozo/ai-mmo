@@ -1,0 +1,15 @@
+syntax = "proto3";
+package login;
+
+message AuthenticationForm {
+    required string username = 1;
+    required string password = 2;
+}
+
+message AuthenticationResponse {
+    required string token = 1;
+}
+
+service Login {
+    rpc Login(AuthenticationForm) returns (AuthenticationToken) {};
+}
