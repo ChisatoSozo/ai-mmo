@@ -13,6 +13,8 @@
   },
   "dependencies": {
     "protobufjs": "^6.11.2",
-    "ts-node": "^10.5.0"
+    "ts-node": "^10.5.0",
+    "protoc-gen-grpc": "^2.0.2",
+    "ts-protoc-gen": "^0.14.0"
   }
 }
