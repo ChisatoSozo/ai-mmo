@@ -20,6 +20,10 @@ message Server {
     required int32 maxPlayers = 5;
 }
 
+message ListOfServers {
+    repeated Server servers = 1;
+}
+
 service ServerList {
-    rpc ListServers(common.Empty) returns (repeated Server) {};
+    rpc ListServers(common.Empty) returns (ListOfServers) {};
 }

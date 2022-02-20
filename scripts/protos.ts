@@ -1,5 +1,6 @@
 import { exec } from 'child_process';
-import { mkdirSync, PathLike, readdirSync, rmdirSync } from 'fs';
+import { PathLike, readdirSync } from 'fs';
+import { mkdir, unlink } from 'fs/promises';
 import { join } from 'path';
 
 const getDirectories = (source: PathLike) =>
@@ -32,8 +33,12 @@ const shell = (command: string) => {
 grpcServices.forEach(async service => {
     const outDirectory = join(__dirname, "../grpc-services", service, "protos");
 
-    rmdirSync(outDirectory, { recursive: true });
-    mkdirSync(outDirectory, { recursive: true });
+    try {
+        await unlink(outDirectory);
+    } catch (e) {
+        // ignore
+    }
+    await mkdir(outDirectory, { recursive: true });
 
     const fileName = service + 'API';
 
@@ -44,6 +49,6 @@ grpcServices.forEach(async service => {
     const outTS = join(outDirectory, dts);
     const protoFile = join(__dirname, "../api", service + ".proto");
 
-    const command = `node_modules/protobufjs/cli/bin/pbjs -t static-module -o ${outJS} -path=. ${protoFile} && node_modules/protobufjs/cli/bin/pbts -o ${outTS} ${outJS}`;
+    const command = `npx pbjs -t static-module -o ${outJS} -path=. ${protoFile} && npx pbts -o ${outTS} ${outJS}`;
     await shell(command);
 })

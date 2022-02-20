@@ -11,5 +11,5 @@ message AuthenticationResponse {
 }
 
 service Login {
-    rpc Login(AuthenticationForm) returns (AuthenticationToken) {};
+    rpc Login(AuthenticationForm) returns (AuthenticationResponse) {};
 }
