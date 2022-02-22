@@ -1,4 +1,4 @@
-import grpc from "grpc";
+import * as grpc from "grpc";
 import { ServerListClient } from "./protos/server_list_grpc_pb";
 import { Server, Service, Services } from "./protos/server_list_pb";
 import { EntitiesServer } from "./services/entities/main";

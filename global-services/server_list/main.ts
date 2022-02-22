@@ -1,4 +1,4 @@
-import grpc from 'grpc';
+import * as grpc from 'grpc';
 import { Empty } from './protos/common_pb';
 import { IServerListServer, ServerListService } from './protos/server_list_grpc_pb';
 import { ListOfServers, Server } from './protos/server_list_pb';

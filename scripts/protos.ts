@@ -45,7 +45,7 @@ const main = async () => {
     const outClientDirectory = join(__dirname, "../client", "src", "protos");
     await cleanDirectory(outClientDirectory);
 
-    for(const serviceDirectory of serviceDirectories) {
+    for (const serviceDirectory of serviceDirectories) {
         const services = getDirectories(join(__dirname, `../${serviceDirectory}`));
         for (let service of services) {
             const outServiceDirectory = join(serviceDirectory, service, "protos");
@@ -66,17 +66,21 @@ const main = async () => {
             await shell(serverCommand);
             await shell(clientCommand);
 
-            for(let protoLib of protoLibs){
+            for (let protoLib of protoLibs) {
                 const serverCommand = `npx grpc_tools_node_protoc --proto_path=api --js_out=import_style=commonjs,binary:${outServiceDirectory} --ts_out=service=grpc-node:${outServiceDirectory} --grpc_out=${outServiceDirectory} ${protoLib}`
                 await shell(serverCommand);
             }
         }
-        
+
         //server_list => instance-services
         const outServiceDirectory = join("instance-services", "protos");
         await cleanDirectory(outServiceDirectory);
         const serverCommand = `npx grpc_tools_node_protoc --proto_path=api --js_out=import_style=commonjs,binary:${outServiceDirectory} --ts_out=service=grpc-node:${outServiceDirectory} --grpc_out=${outServiceDirectory} server_list.proto`
         await shell(serverCommand);
+        for (let protoLib of protoLibs) {
+            const serverCommand = `npx grpc_tools_node_protoc --proto_path=api --js_out=import_style=commonjs,binary:${outServiceDirectory} --ts_out=service=grpc-node:${outServiceDirectory} --grpc_out=${outServiceDirectory} ${protoLib}`
+            await shell(serverCommand);
+        }
     }
 }
 

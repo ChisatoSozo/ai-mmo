@@ -1,8 +1,8 @@
-import fs from 'fs';
-import { sendUnaryData, ServerUnaryCall, ServerWritableStream } from 'grpc';
-import { ITerrainServer } from './protos/terrain_grpc_pb';
-import { TerrainChunk} from './protos/terrain_pb';
+import { sendUnaryData, ServerUnaryCall } from 'grpc';
+import { TERRAIN_CHUNK_HEIGHT_DIVISOR, TERRAIN_CHUNK_LENGTH, TERRAIN_CHUNK_WIDTH } from './constants';
 import { Chunk } from './protos/common_pb';
+import { ITerrainServer } from './protos/terrain_grpc_pb';
+import { TerrainChunk } from './protos/terrain_pb';
 
 //@ts-ignore
 export class TerrainServer implements ITerrainServer {

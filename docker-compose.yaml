@@ -1,0 +1,12 @@
+version: "3.7"
+
+services:
+  # Base images, they are defined here to be built when running `docker compose build`
+  instance:
+    build: instance-services
+    environment:
+      - SERVER_TIMEOUT
+      - SERVER_LIST_URI
+      - HOSTNAME
+      - BASE_PORT
+      - NUM_SERVICES
