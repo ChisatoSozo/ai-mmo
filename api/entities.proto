@@ -1,0 +1,20 @@
+syntax = "proto3";
+package chat;
+
+import "common.proto";
+
+message EntityState {
+    string name = 1;
+    common.Chunk chunk = 2;
+    common.Vector3 position = 3;
+    common.Quaternion rotation = 4;
+}
+
+message EntityList {
+    repeated EntityState entities = 1;
+}
+
+service Entities {
+    rpc Update(stream EntityState) returns (common.Empty) {};
+    rpc Get(stream common.Chunk) returns (stream EntityList) {};
+}

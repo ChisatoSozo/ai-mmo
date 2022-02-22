@@ -1,14 +1,12 @@
 import { exec } from 'child_process';
 import { PathLike, readdirSync } from 'fs';
-import { mkdir, unlink } from 'fs/promises';
+import { mkdir, rmdir } from 'fs/promises';
 import { join } from 'path';
 
 const getDirectories = (source: PathLike) =>
     readdirSync(source, { withFileTypes: true })
         .filter(dirent => dirent.isDirectory())
         .map(dirent => dirent.name)
-
-const grpcServices = getDirectories(join(__dirname, "../grpc-services"));
 
 const shell = (command: string) => {
     console.log(`Executing: ${command}`);
@@ -32,35 +30,53 @@ const shell = (command: string) => {
 
 const cleanDirectory = async (dir: string) => {
     try {
-        await unlink(dir);
+        await rmdir(dir, { recursive: true });
     } catch (e) {
+        console.log(e)
         // ignore
     }
     await mkdir(dir, { recursive: true });
 }
 
+const protoLibs = ["common.proto"];
+const serviceDirectories = ["instance-services/services", "global-services"];
+
 const main = async () => {
     const outClientDirectory = join(__dirname, "../client", "src", "protos");
     await cleanDirectory(outClientDirectory);
 
-    for (let service of grpcServices) {
-        const outServiceDirectory = join(__dirname, "../grpc-services", service, "protos");
+    for(const serviceDirectory of serviceDirectories) {
+        const services = getDirectories(join(__dirname, `../${serviceDirectory}`));
+        for (let service of services) {
+            const outServiceDirectory = join(serviceDirectory, service, "protos");
+            await cleanDirectory(outServiceDirectory);
+
+            const fileName = service + 'API';
+
+            const js = fileName + '.js';
+            const dts = fileName + '.d.ts';
+
+            const outClientJS = join(outClientDirectory, js);
+            const outClientTS = join(outClientDirectory, dts);
+            const protoFile = join(service + ".proto");
+
+            const serverCommand = `npx grpc_tools_node_protoc --proto_path=api --js_out=import_style=commonjs,binary:${outServiceDirectory} --ts_out=service=grpc-node:${outServiceDirectory} --grpc_out=${outServiceDirectory} ${protoFile}`
+            const clientCommand = `npx pbjs -t static-module -o ${outClientJS} -path=api ${protoFile} && npx pbts -o ${outClientTS} ${outClientJS}`;
+
+            await shell(serverCommand);
+            await shell(clientCommand);
+
+            for(let protoLib of protoLibs){
+                const serverCommand = `npx grpc_tools_node_protoc --proto_path=api --js_out=import_style=commonjs,binary:${outServiceDirectory} --ts_out=service=grpc-node:${outServiceDirectory} --grpc_out=${outServiceDirectory} ${protoLib}`
+                await shell(serverCommand);
+            }
+        }
+        
+        //server_list => instance-services
+        const outServiceDirectory = join("instance-services", "protos");
         await cleanDirectory(outServiceDirectory);
-
-        const fileName = service + 'API';
-
-        const js = fileName + '.js';
-        const dts = fileName + '.d.ts';
-
-        const outClientJS = join(outClientDirectory, js);
-        const outClientTS = join(outClientDirectory, dts);
-        const protoFile = join(__dirname, "../api", service + ".proto");
-
-        const serverCommand = `npx grpc_tools_node_protoc --proto_path=. --js_out=import_style=commonjs,binary:${outServiceDirectory} --ts_out=service=grpc-node:${outServiceDirectory} --grpc_out=${outServiceDirectory} ${protoFile}`
-        const clientCommand = `npx pbjs -t static-module -o ${outClientJS} -path=. ${protoFile} && npx pbts -o ${outClientTS} ${outClientJS}`;
-
+        const serverCommand = `npx grpc_tools_node_protoc --proto_path=api --js_out=import_style=commonjs,binary:${outServiceDirectory} --ts_out=service=grpc-node:${outServiceDirectory} --grpc_out=${outServiceDirectory} server_list.proto`
         await shell(serverCommand);
-        await shell(clientCommand);
     }
 }
 
