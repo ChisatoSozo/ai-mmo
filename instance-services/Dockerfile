@@ -14,4 +14,4 @@ RUN npm install
 COPY . .
 
 RUN npx tsc main.ts
-RUN node main.js
+CMD "node" "main.js"

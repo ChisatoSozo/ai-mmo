@@ -8,17 +8,15 @@ import { LoginService } from "./services/login/protos/login_grpc_pb";
 import { TerrainServer } from "./services/terrain/main";
 import { TerrainService } from "./services/terrain/protos/terrain_grpc_pb";
 
-const HOSTNAME = process.env.HOSTNAME;
-const _BASE_PORT = process.env.BASE_PORT;
-const SERVER_LIST_URI = process.env.SERVER_LIST_URI;
-
-if (!HOSTNAME) {
-    throw new Error('Environment variable HOSTNAME is not set.');
+const _env = {
+    _TERRAIN_HOSTNAME: process.env.TERRAIN_HOSTNAME,
+    _TERRAIN_PORT: process.env.TERRAIN_PORT,
+    _ENTITIES_HOSTNAME: process.env.ENTITIES_HOSTNAME,
+    _ENTITIES_PORT: process.env.ENTITIES_PORT,
+    _LOGIN_HOSTNAME: process.env.LOGIN_HOSTNAME,
+    _LOGIN_PORT: process.env.LOGIN_PORT,
+    _SERVER_LIST_URI
 }
-if (!_BASE_PORT) {
-    throw new Error('Environment variable BASE_PORT is not set.');
-}
-const BASE_PORT = parseInt(_BASE_PORT);
 
 if (!SERVER_LIST_URI) {
     throw new Error('Environment variable SERVER_LIST_URI is not set.');
@@ -26,6 +24,7 @@ if (!SERVER_LIST_URI) {
 
 const serverClassesAndServices = [{
     name: 'Terrain',
+    hostname: process.env.TERRAIN_HOSTNAME,
     ServerClass: TerrainServer,
     serverService: TerrainService,
 }, {
@@ -44,7 +43,7 @@ const main = async () => {
     const servers: grpc.Server[] = [];
 
     serverClassesAndServices.forEach(({ name, ServerClass, serverService }, index) => {
-        const hostname = HOSTNAME;
+        const hostname = BASE_HOSTNAME;
         const port = BASE_PORT + index;
 
         const serviceDef = new Service();
@@ -53,7 +52,7 @@ const main = async () => {
 
         const server = new grpc.Server();
         server.addService(serverService, new ServerClass());
-        server.bindAsync(`${HOSTNAME}:${BASE_PORT + index}`, grpc.ServerCredentials.createInsecure(), (err, port) => {
+        server.bindAsync(`${BASE_HOSTNAME}:${BASE_PORT + index}`, grpc.ServerCredentials.createInsecure(), (err, port) => {
             if (err) {
                 throw err;
             }
