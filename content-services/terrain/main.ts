@@ -1,5 +1,6 @@
 import * as grpc from "grpc";
 import { sendUnaryData, ServerUnaryCall } from 'grpc';
+import * as jwt from 'jsonwebtoken';
 import { TERRAIN_CHUNK_HEIGHT_DIVISOR, TERRAIN_CHUNK_LENGTH, TERRAIN_CHUNK_WIDTH } from './constants';
 import { Chunk } from './protos/common_pb';
 import { ProxyManagerClient } from './protos/proxy_manager_grpc_pb';
@@ -13,6 +14,7 @@ const _env: { [key: string]: string } = {
     TERRAIN_HOSTNAME: process.env.TERRAIN_HOSTNAME || "",
     TERRAIN_PORT: process.env.TERRAIN_PORT || "",
     TERRAIN_FRONTEND_PORT: process.env.TERRAIN_FRONTEND_PORT || "",
+    TOKEN_KEY: process.env.TOKEN_KEY || "",
 }
 
 Object.keys(_env).forEach(key => {
@@ -27,18 +29,40 @@ const env = {
     TERRAIN_HOSTNAME: _env.TERRAIN_HOSTNAME,
     TERRAIN_PORT: parseInt(_env.TERRAIN_PORT),
     TERRAIN_FRONTEND_PORT: parseInt(_env.TERRAIN_FRONTEND_PORT),
+    TOKEN_KEY: _env.TOKEN_KEY,
+}
+
+
+const authUsernameUnary = <T, S>(call: ServerUnaryCall<T>, callback: sendUnaryData<S>): string | false => {
+    try {
+        const token = call.metadata.get('authorization')[0] as string;
+        const decoded = jwt.verify(token, env.TOKEN_KEY) as jwt.JwtPayload;
+        return decoded.username;
+    }
+    catch (err: any) {
+        callback({
+            code: grpc.status.UNAUTHENTICATED,
+            name: 'UNAUTHENTICATED',
+            message: err.message,
+        }, null);
+        return false;
+    }
 }
 
 //@ts-ignore
 export class TerrainServer implements ITerrainServer {
     get(call: ServerUnaryCall<Chunk>, callback: sendUnaryData<TerrainChunk>) {
+        const username = authUsernameUnary(call, callback);
+        if (!username) return;
+
         const terrainArray = new Uint16Array(TERRAIN_CHUNK_WIDTH * TERRAIN_CHUNK_LENGTH);
         const terrainBytes = Buffer.from(terrainArray.buffer);
         const terrain = new TerrainChunk();
+        terrain.setChunk(call.request)
         terrain.setData(terrainBytes);
         terrain.setLength(TERRAIN_CHUNK_LENGTH);
         terrain.setWidth(TERRAIN_CHUNK_WIDTH);
-        terrain.setHeightDivisor(TERRAIN_CHUNK_HEIGHT_DIVISOR);
+        terrain.setHeight(TERRAIN_CHUNK_HEIGHT_DIVISOR);
         callback(null, terrain);
     }
 }

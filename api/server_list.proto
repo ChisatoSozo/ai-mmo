@@ -16,8 +16,6 @@ message Services {
 
 message Server {
     Services services = 1;
-    int32 players = 2;
-    int32 max_players = 3;
 }
 
 message ListOfServers {

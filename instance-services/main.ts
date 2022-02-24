@@ -81,6 +81,7 @@ const startServers = async (proxyReplyList: ProxyReplyList) => {
         serviceDef.setFrontendPort(proxyFromManager.frontendPort);
 
         const server = new grpc.Server();
+        //@ts-ignore
         server.addService(serverService, new ServerClass());
         server.bindAsync(`${hostname}:${port}`, grpc.ServerCredentials.createInsecure(), (err, port) => {
             if (err) {
@@ -100,8 +101,6 @@ const startServers = async (proxyReplyList: ProxyReplyList) => {
 
     const serverDef = new Server();
     serverDef.setServices(servicesDef);
-    serverDef.setMaxPlayers(100);
-    serverDef.setPlayers(0);
 
     const SERVER_LIST_URI = `${env.SERVER_LIST_HOSTNAME}:${env.SERVER_LIST_PORT}`;
 
@@ -123,6 +122,8 @@ const startServers = async (proxyReplyList: ProxyReplyList) => {
     }
 
     setInterval(async () => {
+
+
         try {
             await new Promise<void>((resolve, reject) => {
                 serverListClient.heartbeat(serverDef, (err, response) => {

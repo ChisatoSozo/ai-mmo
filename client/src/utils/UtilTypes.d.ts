@@ -97,3 +97,12 @@ export class Message {
 
 export type MessageBase = Message;
 export type MessageClass = typeof Message;
+
+export type NotNull = {
+    [P in keyof T]: NonNullable<T[P]>;
+};
+
+export type PromiseClientMethod<T extends MessageGrpc, S extends MessageGrpc> = (
+    request: T,
+    metadata?: grpcWeb.Metadata
+) => Promise<S>

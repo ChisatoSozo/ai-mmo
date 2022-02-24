@@ -3,13 +3,13 @@ package common;
 
 message Empty {};
 
-message Vector3 {
+message PVector3 {
   float x = 1;
   float y = 2;
   float z = 3;
 }
 
-message Quaternion {
+message PQuaternion {
   float x = 1;
   float y = 2;
   float z = 3;
@@ -18,5 +18,5 @@ message Quaternion {
 
 message Chunk {
     uint32 x = 1;
-    uint32 y = 2;
+    uint32 z = 2;
 }

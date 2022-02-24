@@ -6,8 +6,17 @@ import "common.proto";
 message EntityState {
     string name = 1;
     common.Chunk chunk = 2;
-    common.Vector3 position = 3;
-    common.Quaternion rotation = 4;
+    common.PVector3 position = 3;
+    common.PQuaternion rotation = 4;
+}
+
+message EntityDetails {
+    string name = 1;
+    string model = 2;
+}
+
+message EntityName {
+    string name =  1;
 }
 
 message EntityList {
@@ -17,4 +26,6 @@ message EntityList {
 service Entities {
     rpc Update(stream EntityState) returns (common.Empty) {};
     rpc Get(stream common.Chunk) returns (stream EntityList) {};
+    rpc Hydrate(EntityName) returns (EntityState) {};
+    rpc Details(EntityName) returns (EntityDetails) {};
 }

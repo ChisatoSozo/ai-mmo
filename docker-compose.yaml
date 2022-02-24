@@ -34,6 +34,9 @@ services:
       - LOGIN_HOSTNAME
       - LOGIN_PORT
       - LOGIN_FRONTEND_PORT
+      - TOKEN_KEY
+    volumes:
+      - ./global-services/login/db:/app/db
     network_mode: host
     depends_on:
       - proxy_manager
@@ -46,6 +49,7 @@ services:
       - TERRAIN_HOSTNAME
       - TERRAIN_PORT
       - TERRAIN_FRONTEND_PORT
+      - TOKEN_KEY
     network_mode: host
     depends_on:
       - proxy_manager
@@ -59,6 +63,7 @@ services:
       - INSTANCE_BASE_PORT
       - SERVER_LIST_HOSTNAME
       - SERVER_LIST_PORT
+      - TOKEN_KEY
     network_mode: host
     depends_on:
       - server_list

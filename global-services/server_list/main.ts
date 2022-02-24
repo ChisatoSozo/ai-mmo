@@ -94,6 +94,7 @@ export class ServerListServer implements IServerListServer {
     get(call: grpc.ServerUnaryCall<Empty>, callback: grpc.sendUnaryData<ListOfServers>) {
         const response = new ListOfServers();
         response.setServersList(Object.values(this.servers).map(server => server.server));
+        console.log("getting", response.getServersList().length);
         callback(null, response);
     }
 }

@@ -3,21 +3,20 @@ import Avatar from '@mui/material/Avatar';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
-import CssBaseline from '@mui/material/CssBaseline';
 import Grid from '@mui/material/Grid';
 import Link from '@mui/material/Link';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import React, { useMemo } from 'react';
 import { login } from "../protos/login";
-import { LoginPromiseClient } from '../protos/login_grpc_web_pb';
+import { LoginClient } from '../protos/login_grpc_web_pb';
 import { AuthenticationForm } from '../protos/login_pb';
 import { staticCastToGoogle } from '../utils/PBUtils';
 
 export const Login: React.FC = () => {
     const loginClient = useMemo(() => {
         const LOGIN_URI = `http://${process.env.REACT_APP_LOGIN_HOSTNAME}:${process.env.REACT_APP_LOGIN_FRONTEND_PORT}`;
-        return new LoginPromiseClient(LOGIN_URI, null, null);
+        return new LoginClient(LOGIN_URI, null, null);
     }, []);
 
     const [error, setError] = React.useState<string | null>(null);
@@ -32,20 +31,23 @@ export const Login: React.FC = () => {
         authenticationForm.password = data.get('password') as string;
 
         const message = staticCastToGoogle<AuthenticationForm>(authenticationForm, AuthenticationForm);
-        loginClient.login(message).then((response) => {
+
+        loginClient.login(message, undefined, (err, response) => {
+            if (err) {
+                setError(err.message);
+                return;
+            }
             const loginResponse = response.toObject();
             localStorage.setItem('token', loginResponse.token);
-            window.location.href = '/game';
-        }).catch((err) => {
-            console.log(err)
-            setError(err.message);
+            localStorage.setItem('username', authenticationForm.username);
+            window.location.href = `${process.env.PUBLIC_URL}/serverList`;
         });
     };
 
     return (
         <Container component="main" maxWidth="xs">
-            <CssBaseline />
             <Box
+                component="div"
                 sx={{
                     marginTop: 8,
                     display: 'flex',

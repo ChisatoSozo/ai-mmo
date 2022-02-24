@@ -4,7 +4,6 @@ import { existsSync, writeFileSync } from 'fs';
 import * as grpc from "grpc";
 import { sendUnaryData, ServerUnaryCall } from 'grpc';
 import * as jwt from 'jsonwebtoken';
-import * as randomstring from 'randomstring';
 import { ILoginServer, LoginService } from './protos/login_grpc_pb';
 import { AuthenticationForm, AuthenticationResponse, AuthenticationUser } from './protos/login_pb';
 import { ProxyManagerClient } from './protos/proxy_manager_grpc_pb';
@@ -16,6 +15,7 @@ const _env: { [key: string]: string } = {
     LOGIN_HOSTNAME: process.env.LOGIN_HOSTNAME || "",
     LOGIN_PORT: process.env.LOGIN_PORT || "",
     LOGIN_FRONTEND_PORT: process.env.LOGIN_FRONTEND_PORT || "",
+    TOKEN_KEY: process.env.TOKEN_KEY || "",
 }
 
 Object.keys(_env).forEach(key => {
@@ -30,6 +30,7 @@ const env = {
     LOGIN_HOSTNAME: _env.LOGIN_HOSTNAME,
     LOGIN_PORT: parseInt(_env.LOGIN_PORT),
     LOGIN_FRONTEND_PORT: parseInt(_env.LOGIN_FRONTEND_PORT),
+    TOKEN_KEY: _env.TOKEN_KEY,
 }
 
 if (!existsSync('./db/users.db')) {
@@ -37,12 +38,6 @@ if (!existsSync('./db/users.db')) {
 }
 
 const db = flatfile.sync('./db/users.db');
-
-let TOKEN_KEY = db.get('tokenKey');
-if (!TOKEN_KEY) {
-    TOKEN_KEY = randomstring.generate(64);
-    db.put('tokenKey', TOKEN_KEY);
-}
 
 
 //@ts-ignore
@@ -73,7 +68,7 @@ export class LoginServer implements ILoginServer {
 
         const token = jwt.sign(
             { username },
-            TOKEN_KEY,
+            env.TOKEN_KEY,
             {
                 expiresIn: '2h'
             }
@@ -128,7 +123,7 @@ export class LoginServer implements ILoginServer {
 
         const token = jwt.sign(
             { username },
-            TOKEN_KEY,
+            env.TOKEN_KEY,
             {
                 expiresIn: '2h'
             }
@@ -155,7 +150,7 @@ export class LoginServer implements ILoginServer {
         }
 
         try {
-            const { username } = jwt.verify(token, TOKEN_KEY) as jwt.JwtPayload;
+            const { username } = jwt.verify(token, env.TOKEN_KEY) as jwt.JwtPayload;
             const response = new AuthenticationUser();
             response.setUser(username);
             callback(null, response);

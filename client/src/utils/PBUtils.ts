@@ -1,6 +1,7 @@
 import { Message as MessageGrpc } from 'google-protobuf';
 import * as grpc from 'grpc-web';
-import { MessageBase, MessageClass } from './UtilTypes';
+import { globalObject } from './Global';
+import { MessageBase, MessageClass, PromiseClientMethod } from './UtilTypes';
 
 export type Status = { details: string; code: number; metadata: grpc.Metadata };
 
@@ -204,3 +205,83 @@ export const staticCastToGoogle = <T extends MessageGrpc>(
     return newMessage as T;
 };
 
+export const requestAll = <Input extends MessageGrpc, Output extends MessageGrpc>(inputs: Input[], clientMethod: PromiseClientMethod<Input, Output>) => {
+    let numResolved = 0;
+    const results: Output[] = [];
+
+    const token = globalObject.token;
+    if (!token) throw new Error('No token');
+
+    const authMetadata = {
+        authorization: token,
+    };
+
+    return new Promise<Output[]>((resolve, reject) => {
+        for (const input of inputs) {
+            clientMethod(input, authMetadata).then((result) => {
+                results.push(result);
+                numResolved++;
+                if (numResolved === inputs.length) {
+                    resolve(results);
+                }
+            }).catch((err) => {
+                reject(err);
+            });
+        }
+    });
+}
+
+type Required<T> = {
+    [P in keyof T]-?: T[P];
+};
+
+export const deepNullCheck = (obj: any) => {
+    if (obj === null) {
+        return true;
+    }
+    if (typeof obj !== 'object') {
+        return false;
+    }
+    for (const key in obj) {
+        if (obj.hasOwnProperty(key)) {
+            if (deepNullCheck(obj[key])) {
+                throw new Error(`${key} is null`);
+            }
+        }
+    }
+    return false;
+}
+type DeepRequired<T> = {
+    [P in keyof T]-?: NonNullable<DeepRequired<T[P]>>;
+}
+
+type RequiredNonNull<T> = {
+    [P in keyof T]-?: NonNullable<T[P]>;
+}
+
+export const ensureDeepNotNullE = <T>(obj: T | null | undefined): DeepRequired<T> => {
+    //Recursively checks if all properties are not null
+    const isNull = deepNullCheck(obj);
+    if (isNull || !obj) {
+        throw new Error('Object is null');
+    }
+    return obj as unknown as DeepRequired<T>;
+}
+
+export const ensureNotNullE = <T>(obj: T | null | undefined): RequiredNonNull<T> => {
+    for (const key in obj) {
+        if (obj[key] === null || obj[key] === undefined) {
+            throw new Error(`${key} is null`);
+        }
+    }
+    return obj as unknown as RequiredNonNull<T>;
+}
+
+export const ensureNotNull = <T>(obj: T | null | undefined): RequiredNonNull<T> | undefined => {
+    for (const key in obj) {
+        if (obj[key] === null || obj[key] === undefined) {
+            return
+        }
+    }
+    return obj as unknown as RequiredNonNull<T>;
+}
