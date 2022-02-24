@@ -1,0 +1,65 @@
+version: "3.7"
+
+services:
+  # Base images, they are defined here to be built when running `docker compose build`
+
+  proxy_manager:
+    build: global-services/proxy_manager
+    environment:
+      - PROXY_MANAGER_PORT
+      - PROXY_MANAGER_HOSTNAME
+      - PROXY_MANAGER_DYNAMIC_PORTS_START
+      - PROXY_MANAGER_FRONTEND_PORT_MIN
+      - PROXY_MANAGER_FRONTEND_PORT_MAX
+    network_mode: host
+
+  server_list:
+    build: global-services/server_list
+    environment:
+      - PROXY_MANAGER_HOSTNAME
+      - PROXY_MANAGER_PORT
+      - SERVER_LIST_HOSTNAME
+      - SERVER_LIST_PORT
+      - SERVER_LIST_FRONTEND_PORT
+      - SERVER_LIST_TIMEOUT
+    network_mode: host
+    depends_on:
+      - proxy_manager
+
+  login:
+    build: global-services/login
+    environment:
+      - PROXY_MANAGER_HOSTNAME
+      - PROXY_MANAGER_PORT
+      - LOGIN_HOSTNAME
+      - LOGIN_PORT
+      - LOGIN_FRONTEND_PORT
+    network_mode: host
+    depends_on:
+      - proxy_manager
+
+  terrain:
+    build: content-services/terrain
+    environment:
+      - PROXY_MANAGER_HOSTNAME
+      - PROXY_MANAGER_PORT
+      - TERRAIN_HOSTNAME
+      - TERRAIN_PORT
+      - TERRAIN_FRONTEND_PORT
+    network_mode: host
+    depends_on:
+      - proxy_manager
+
+  instance:
+    build: instance-services
+    environment:
+      - PROXY_MANAGER_HOSTNAME
+      - PROXY_MANAGER_PORT
+      - INSTANCE_HOSTNAME
+      - INSTANCE_BASE_PORT
+      - SERVER_LIST_HOSTNAME
+      - SERVER_LIST_PORT
+    network_mode: host
+    depends_on:
+      - server_list
+      - proxy_manager

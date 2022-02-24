@@ -1,0 +1,6 @@
+**/client-protos
+**/server-protos
+**/protos
+**/node_modules
+**/db/*
+!**/db/.keep

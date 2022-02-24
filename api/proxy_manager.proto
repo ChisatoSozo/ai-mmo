@@ -1,0 +1,27 @@
+syntax = "proto3";
+package proxy_manager;
+
+message ProxyRequest {
+    string backend_hostname = 1;
+    int32 backend_port = 2;
+    int32 force_frontend_port = 3;
+}
+
+message ProxyRequestList {
+    repeated ProxyRequest proxy = 1;
+}
+
+message ProxyReply {
+    string backend_hostname = 1;
+    int32 backend_port = 2;
+    string frontend_hostname = 3;
+    int32 frontend_port = 4;
+}
+
+message ProxyReplyList {
+    repeated ProxyReply proxy = 1;
+}
+
+service ProxyManager {
+    rpc Put(ProxyRequestList) returns (ProxyReplyList);
+}

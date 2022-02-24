@@ -1,0 +1,31 @@
+syntax = "proto3";
+package server_list;
+
+import "common.proto";
+
+message Service {
+    string frontend_hostname = 1;
+    int32 frontend_port = 2;
+    string backend_hostname = 3;
+    int32 backend_port = 4;
+}
+
+message Services {
+    Service entities = 3;
+}
+
+message Server {
+    Services services = 1;
+    int32 players = 2;
+    int32 max_players = 3;
+}
+
+message ListOfServers {
+    repeated Server servers = 1;
+}
+
+service ServerList {
+    rpc Put(Server) returns (common.Empty);
+    rpc Heartbeat(Server) returns (common.Empty);
+    rpc Get(common.Empty) returns (ListOfServers) {};
+}
