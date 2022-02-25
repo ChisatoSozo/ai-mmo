@@ -1,18 +1,18 @@
 {
-  "name": "terrain",
-  "version": "1.0.0",
-  "description": "",
-  "main": "main.ts",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "@types/jsonwebtoken": "^8.5.8",
-    "google-protobuf": "^3.19.4",
-    "grpc": "^1.24.11",
-    "jsonwebtoken": "^8.5.1",
-    "typescript": "^4.5.5"
-  }
+    "name": "terrain",
+    "version": "1.0.0",
+    "description": "",
+    "main": "main.ts",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "@types/jsonwebtoken": "^8.5.8",
+        "google-protobuf": "^3.19.4",
+        "grpc": "^1.24.11",
+        "jsonwebtoken": "^8.5.1",
+        "typescript": "^4.5.5"
+    }
 }

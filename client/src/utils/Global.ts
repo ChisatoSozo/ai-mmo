@@ -1,5 +1,5 @@
 interface GlobalObject {
-    token?: string;
+    token?: string
 }
 
 export const globalObject: GlobalObject = {}
