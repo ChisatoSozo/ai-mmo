@@ -1,13 +1,13 @@
 import { Color3, TransformNode } from '@babylonjs/core'
 import { useEffect, useRef, useState } from 'react'
-import { ProcessedTerrainChunk } from '../../data-hooks/useTerrain'
+import { ProcessedTerrainChunk, TerrainData } from '../../data-hooks/useTerrain'
 import { common } from '../../protos/common'
 import { hashChunk } from '../../utils/HashFunctions'
 
 interface TerrainProps {
     chunk: common.IChunk
     renderDistance: number
-    terrainData: { [key: string]: ProcessedTerrainChunk }
+    terrainData: TerrainData
     chunkSize: number
 }
 
@@ -20,8 +20,10 @@ const hashFloat = (x?: number | null) => {
     return hash
 }
 
-export const Terrain: React.FC<TerrainProps> = ({ chunk, renderDistance, terrainData, chunkSize }) => {
-    const [currentTerrainChunks, setCurrentTerrainChunks] = useState<ProcessedTerrainChunk[]>()
+export const TerrainRenderable: React.FC<TerrainProps> = ({ chunk, renderDistance, terrainData, chunkSize }) => {
+    const [currentTerrainChunks, setCurrentTerrainChunks] =
+        useState<{ root: common.IChunk; data: ProcessedTerrainChunk[] }>()
+
     useEffect(() => {
         const chunks = []
 
@@ -31,13 +33,15 @@ export const Terrain: React.FC<TerrainProps> = ({ chunk, renderDistance, terrain
         for (let x = chunkX - renderDistance; x <= chunkX + renderDistance; x++) {
             for (let z = chunkZ - renderDistance; z <= chunkZ + renderDistance; z++) {
                 const key = hashChunk({ x, z })
-                if (terrainData[key]) {
-                    chunks.push(terrainData[key])
+                if (terrainData.processedTerrainChunks[key]) {
+                    chunks.push(terrainData.processedTerrainChunks[key])
+                } else {
+                    return
                 }
             }
         }
 
-        setCurrentTerrainChunks(chunks)
+        setCurrentTerrainChunks({ root: chunk, data: chunks })
     }, [chunk, renderDistance, terrainData])
 
     const terrainRootRef = useRef<TransformNode>(null)

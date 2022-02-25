@@ -4,4 +4,5 @@
 **/node_modules
 **/db/*
 !**/db/.keep
-**/*.tgz
+**/commonUtils.ts
+**/commonConstants.ts

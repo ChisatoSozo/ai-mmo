@@ -39,7 +39,14 @@ files.forEach((file) => {
         }
         console.log('installing', path)
 
-        require('child_process').execSync(`rm -rf ${path}/node_modules`)
-        require('child_process').execSync(`cd ${path} && npm install`)
+        if (!path.includes('client')) {
+            require('child_process').execSync(`rm -rf ${path}/commonUtils.ts`)
+            require('child_process').execSync(`cp ${root + '/utils/' + 'utils.ts'} ${path}/commonUtils.ts`)
+            require('child_process').execSync(`rm -rf ${path}/commonConstants.ts`)
+            require('child_process').execSync(`cp ${root + '/utils/' + 'constants.ts'} ${path}/commonConstants.ts`)
+        } else {
+            require('child_process').execSync(`rm -rf ${path}/src/commonConstants.ts`)
+            require('child_process').execSync(`cp ${root + '/utils/' + 'constants.ts'} ${path}/src/commonConstants.ts`)
+        }
     }
 })

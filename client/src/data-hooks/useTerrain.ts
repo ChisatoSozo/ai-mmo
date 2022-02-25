@@ -5,9 +5,10 @@ import { useScene } from 'react-babylonjs'
 import { common } from '../protos/common'
 import { Chunk } from '../protos/common_pb'
 import { terrain } from '../protos/terrain'
+import { TerrainMeshRequest } from '../protos/terrain_pb'
 import { TerrainClient } from '../protos/terrain_pb_service'
 import { hashChunk } from '../utils/HashFunctions'
-import { makeBidi } from '../utils/NetworkTransformers'
+import { makeBidi, pFetch } from '../utils/NetworkTransformers'
 import { ensureProps, requestAllStream, staticCastFromGoogle, staticCastToGoogle } from '../utils/PBUtils'
 
 const _env: { [key: string]: string } = {
@@ -37,7 +38,17 @@ export interface ProcessedTerrainChunk {
     height: number
 }
 
-export const useTerrain = (chunk: common.IChunk, renderDistance: number) => {
+export interface TerrainData {
+    processedTerrainChunks: { [key: string]: ProcessedTerrainChunk }
+    terrainMesh: terrain.IPMesh | undefined
+}
+
+export const useTerrain = (
+    chunk: common.IChunk,
+    renderDistance: number,
+    terrainResolution: number,
+    lods: number[]
+): TerrainData => {
     const scene = useScene()
 
     const client = useMemo(
@@ -144,5 +155,25 @@ export const useTerrain = (chunk: common.IChunk, renderDistance: number) => {
         })
     }, [terrainChunks, scene])
 
-    return processedTerrainChunks
+    const [terrainMesh, setTerrainMesh] = useState<terrain.IPMesh>()
+
+    useEffect(() => {
+        const getTerrainMesh = async () => {
+            const terrainMeshRequest = new terrain.TerrainMeshRequest()
+            terrainMeshRequest.resolution = terrainResolution
+            terrainMeshRequest.lods = lods
+
+            const message = staticCastToGoogle<TerrainMeshRequest>(terrainMeshRequest, TerrainMeshRequest)
+            const reply = await pFetch(message, client.getMesh.bind(client))
+            if (!reply) {
+                throw new Error('No reply from terrain server for mesh request')
+            }
+            const terrainMeshFromNetwork = staticCastFromGoogle<terrain.PMesh>(reply, terrain.PMesh)
+            setTerrainMesh(terrainMeshFromNetwork)
+        }
+
+        getTerrainMesh()
+    }, [client, lods, terrainResolution])
+
+    return { processedTerrainChunks, terrainMesh }
 }

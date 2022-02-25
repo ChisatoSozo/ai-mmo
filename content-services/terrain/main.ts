@@ -1,9 +1,10 @@
 import * as grpc from 'grpc'
-import { authUsernameDuplex, constructProxy } from 'utils'
-import { TERRAIN_CHUNK_HEIGHT_DIVISOR, TERRAIN_CHUNK_LENGTH, TERRAIN_CHUNK_WIDTH } from './constants'
+import { authUsername, authUsernameDuplex, constructProxy } from './commonUtils'
+import { generateHeightmap } from './generators/heightmap'
+import { generateTerrainMesh } from './generators/terrainMesh'
 import { Chunk } from './protos/common_pb'
 import { ITerrainServer, TerrainService } from './protos/terrain_grpc_pb'
-import { TerrainChunk } from './protos/terrain_pb'
+import { PMesh, TerrainChunk, TerrainMeshRequest } from './protos/terrain_pb'
 
 const _env: { [key: string]: string } = {
     PROXY_MANAGER_HOSTNAME: process.env.PROXY_MANAGER_HOSTNAME || '',
@@ -36,16 +37,17 @@ export class TerrainServer implements ITerrainServer {
         if (!username) return
 
         call.on('data', (chunk) => {
-            const terrainArray = new Uint16Array(TERRAIN_CHUNK_WIDTH * TERRAIN_CHUNK_LENGTH)
-            const terrainBytes = Buffer.from(terrainArray.buffer)
-            const terrain = new TerrainChunk()
-            terrain.setChunk(chunk)
-            terrain.setData(terrainBytes)
-            terrain.setLength(TERRAIN_CHUNK_LENGTH)
-            terrain.setWidth(TERRAIN_CHUNK_WIDTH)
-            terrain.setHeight(TERRAIN_CHUNK_HEIGHT_DIVISOR)
+            const terrain = generateHeightmap(chunk)
             call.write(terrain)
         })
+    }
+
+    getMesh: grpc.handleUnaryCall<TerrainMeshRequest, PMesh> = (call, callback) => {
+        const username = authUsername(call, callback, env.TOKEN_KEY)
+        if (!username) return
+
+        const mesh = generateTerrainMesh(call.request)
+        callback(null, mesh)
     }
 }
 

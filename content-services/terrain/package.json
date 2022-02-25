@@ -14,7 +14,6 @@
         "google-protobuf": "^3.19.4",
         "grpc": "^1.24.11",
         "jsonwebtoken": "^8.5.1",
-        "typescript": "^4.5.5",
-        "utils": "file:utils.tgz"
+        "typescript": "^4.5.5"
     }
 }

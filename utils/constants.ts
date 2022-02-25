@@ -1,0 +1,3 @@
+export const TERRAIN_CHUNK_WIDTH = 1024
+export const TERRAIN_CHUNK_LENGTH = 1024
+export const TERRAIN_CHUNK_HEIGHT = 300

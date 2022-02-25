@@ -1,6 +1,7 @@
 import { grpc } from '@improbable-eng/grpc-web'
 import { Message } from 'google-protobuf'
 
+type ServiceError = { message: string; code: number; metadata: grpc.Metadata }
 type Status = { details: string; code: number; metadata: grpc.Metadata }
 
 interface BidirectionalStream<ReqT, ResT> {
@@ -81,4 +82,29 @@ export type Bidi<Input extends Message, Output extends Message> = {
     statusObject: {
         status: Status | undefined
     }
+}
+interface UnaryResponse {
+    cancel(): void
+}
+
+type UnaryRequest = <Input extends Message, Output extends Message>(
+    requestMessage: Input,
+    metadata: grpc.Metadata,
+    callback: (error: ServiceError | null, responseMessage: Output | null) => void
+) => UnaryResponse
+
+export const pFetch = async <Input extends Message, Output extends Message>(
+    input: Input,
+    method: UnaryRequest
+): Promise<Output | null> => {
+    const metadata = new grpc.Metadata()
+    return new Promise<Output | null>((resolve, reject) => {
+        method(input, metadata, (error, responseMessage: Output | null) => {
+            if (error) {
+                reject(error)
+            } else {
+                resolve(responseMessage)
+            }
+        })
+    })
 }
