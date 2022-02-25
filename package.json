@@ -5,7 +5,8 @@
     "scripts": {
         "protos": "ts-node scripts/protos.ts",
         "build": "ts-node scripts/protos.ts && docker-compose build",
-        "start": "docker-compose up"
+        "start": "docker-compose up",
+        "postinstall": "ts-node scripts/install.ts"
     },
     "author": "",
     "license": "ISC",
