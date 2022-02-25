@@ -1,7 +1,7 @@
 {
-    "name": "global-services",
+    "name": "utils",
     "version": "1.0.0",
-    "description": "",
+    "description": "test?",
     "main": "main.ts",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1"
@@ -9,9 +9,8 @@
     "author": "",
     "license": "ISC",
     "dependencies": {
-        "google-protobuf": "^3.19.4",
+        "@types/jsonwebtoken": "^8.5.8",
         "grpc": "^1.24.11",
-        "typescript": "^4.5.5",
-        "utils": "file:utils.tgz"
+        "jsonwebtoken": "^8.5.1"
     }
 }

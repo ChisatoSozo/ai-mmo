@@ -2,6 +2,7 @@ FROM node:16
 
 WORKDIR /app
 
+COPY utils.tgz ./
 COPY package.json package-lock.json ./
 RUN npm install
 

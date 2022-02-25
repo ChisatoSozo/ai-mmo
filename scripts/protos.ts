@@ -3,12 +3,7 @@ import { PathLike, readdirSync } from 'fs'
 import { copySync } from 'fs-extra'
 import { mkdir, rmdir } from 'fs/promises'
 import { join } from 'path'
-
-const getDirectories = (source: PathLike) =>
-    readdirSync(source, { withFileTypes: true })
-        .filter((dirent) => dirent.isDirectory())
-        .map((dirent) => dirent.name)
-        .map((name) => `${source}/${name}`)
+import { clientDirectories, serverDirectories } from './common'
 
 const getFiles = (source: PathLike) =>
     readdirSync(source, { withFileTypes: true })
@@ -43,13 +38,6 @@ const cleanDirectory = async (dir: string) => {
     }
     await mkdir(dir, { recursive: true })
 }
-
-const clientDirectories = ['client/src']
-const serverDirectories = [
-    getDirectories('global-services'),
-    getDirectories('content-services'),
-    'instance-services',
-].flat()
 
 const protoFiles = getFiles('api')
 

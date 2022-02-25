@@ -21,6 +21,8 @@ const getAllFiles = function (dirPath: string, arrayOfFiles: string[] = []) {
 
     return arrayOfFiles
 }
+console.log(`cd ${root}/utils`)
+require('child_process').execSync(`cd ${root}/utils && rm -rf *.tgz && npm pack`)
 
 const files = getAllFiles(root)
 
@@ -29,12 +31,22 @@ files.forEach((file) => {
     if (file.endsWith('package.json')) {
         const path = file.replace(root, '').replace('package.json', '')
 
+        if (path === root + '/utils/') {
+            console.log('skipping utils package.json')
+            return
+        }
         if (path === root + '/') {
             console.log('skipping root package.json')
             return
         }
         console.log('installing', path)
 
+        if (!path.includes('client')) {
+            require('child_process').execSync(`rm -rf ${path}/utils.tgz`)
+            require('child_process').execSync(`cp ${root + '/utils/' + '*.tgz'} ${path}/utils.tgz`)
+        }
+
+        require('child_process').execSync(`rm -rf ${path}/node_modules`)
         require('child_process').execSync(`cd ${path} && npm install`)
     }
 })

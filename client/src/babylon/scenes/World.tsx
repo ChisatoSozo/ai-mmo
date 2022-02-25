@@ -1,8 +1,8 @@
 import { Vector3 } from '@babylonjs/core'
 import { useTerrain } from '../../data-hooks/useTerrain'
+import { CHUNK_SIZE } from '../../utils/Constants'
 import { useCurrentChunk } from '../hooks/useCurrentChunk'
 import { Terrain } from '../renderables/Terrain'
-import { CHUNK_SIZE } from '../utils/Constants'
 
 const renderDistance = 2
 

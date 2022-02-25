@@ -8,6 +8,7 @@ RUN unzip grpcwebproxy-v0.15.0-linux-x86_64.zip
 RUN cp /app/dist/grpcwebproxy-v0.15.0-linux-x86_64 /usr/local/bin/grpcwebproxy
 RUN chmod +x /usr/local/bin/grpcwebproxy
 
+COPY utils.tgz ./
 COPY package.json package-lock.json ./
 RUN npm install
 
