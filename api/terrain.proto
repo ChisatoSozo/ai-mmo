@@ -12,5 +12,5 @@ message TerrainChunk {
 }
 
 service Terrain {
-    rpc Get(common.Chunk) returns (TerrainChunk) {};
+    rpc Get(stream common.Chunk) returns (stream TerrainChunk) {};
 }

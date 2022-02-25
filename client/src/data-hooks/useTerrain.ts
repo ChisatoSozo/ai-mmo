@@ -6,7 +6,7 @@ import { Chunk } from '../protos/common_pb';
 import { terrain } from '../protos/terrain';
 import { TerrainPromiseClient } from '../protos/terrain_grpc_web_pb';
 import { hashChunk } from '../utils/HashFunctions';
-import { ensureNotNullE, requestAll, staticCastFromGoogle, staticCastToGoogle } from '../utils/PBUtils';
+import { ensureProps, requestAll, staticCastFromGoogle, staticCastToGoogle } from '../utils/PBUtils';
 
 const _env: { [key: string]: string } = {
     REACT_APP_TERRAIN_HOSTNAME: process.env.REACT_APP_TERRAIN_HOSTNAME || "",
@@ -35,21 +35,24 @@ export interface ProcessedTerrainChunk {
     height: number
 }
 
-export const useTerrain = (_chunk: common.IChunk, renderDistance: number) => {
+export const useTerrain = (chunk: common.IChunk, renderDistance: number) => {
     const scene = useScene();
 
     const client = useMemo(() => new TerrainPromiseClient(TERRAIN_URI, null, null), []);
+    const terrainGetStream = useMemo(() => client., []);
 
     const [terrainChunks, setTerrainChunks] = useState<{ [key: string]: terrain.ITerrainChunk }>({});
 
     useEffect(() => {
-        const chunk = ensureNotNullE(_chunk);
 
         const getTerrainChunks = async () => {
             const inputs: common.IChunk[] = [];
 
-            for (let x = chunk.x - renderDistance; x <= chunk.x + renderDistance; x++) {
-                for (let z = chunk.z - renderDistance; z <= chunk.z + renderDistance; z++) {
+            const chunkX = chunk.x || 0;
+            const chunkZ = chunk.z || 0;
+
+            for (let x = chunkX - renderDistance; x <= chunkX + renderDistance; x++) {
+                for (let z = chunkZ - renderDistance; z <= chunkZ + renderDistance; z++) {
                     const key = hashChunk(chunk);
                     if (!terrainChunks[key]) {
                         inputs.push({ x, z });
@@ -75,7 +78,7 @@ export const useTerrain = (_chunk: common.IChunk, renderDistance: number) => {
         }
 
         getTerrainChunks();
-    }, [_chunk, renderDistance])
+    }, [chunk, renderDistance])
 
     const [processedTerrainChunks, setProcessedTerrainChunks] = useState<{ [key: string]: ProcessedTerrainChunk }>({});
 
@@ -84,9 +87,11 @@ export const useTerrain = (_chunk: common.IChunk, renderDistance: number) => {
         const justProcessedTerrainChunks: ProcessedTerrainChunk[] = [];
         for (let key in terrainChunks) {
             if (!processedTerrainChunks[key]) {
-                const terrainChunk = ensureNotNullE(terrainChunks[key]);
-                const array = new Uint16Array(terrainChunk.data.buffer);
-                const heightmap = new RawTexture(array, terrainChunk.width, terrainChunk.length, Engine.TEXTUREFORMAT_R, scene, undefined, undefined, undefined, Engine.TEXTURETYPE_UNSIGNED_SHORT)
+
+                const terrainChunk = ensureProps(terrainChunks[key], ["chunk", "data", "width", "length", "height"]);
+
+                const array = new Uint16Array(terrainChunk.data);
+                const heightmap = new RawTexture(array, terrainChunk.width / 4, terrainChunk.length, Engine.TEXTUREFORMAT_RGBA, scene, undefined, undefined, undefined, Engine.TEXTURETYPE_UNSIGNED_SHORT_4_4_4_4)
                 const processedTerrainChunk: ProcessedTerrainChunk = {
                     chunk: terrainChunk.chunk,
                     heightmap,

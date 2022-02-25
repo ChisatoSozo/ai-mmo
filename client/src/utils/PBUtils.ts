@@ -185,6 +185,7 @@ export class AsyncQueue<T> {
     };
 }
 
+
 export const staticCastFromGoogle = <T extends MessageBase>(
     source: MessageGrpc,
     destClass: MessageClass,
@@ -259,28 +260,11 @@ type RequiredNonNull<T> = {
     [P in keyof T]-?: NonNullable<T[P]>;
 }
 
-export const ensureDeepNotNullE = <T>(obj: T | null | undefined): DeepRequired<T> => {
-    //Recursively checks if all properties are not null
-    const isNull = deepNullCheck(obj);
-    if (isNull || !obj) {
-        throw new Error('Object is null');
-    }
-    return obj as unknown as DeepRequired<T>;
-}
-
-export const ensureNotNullE = <T>(obj: T | null | undefined): RequiredNonNull<T> => {
-    for (const key in obj) {
-        if (obj[key] === null || obj[key] === undefined) {
-            throw new Error(`${key} is null`);
-        }
-    }
-    return obj as unknown as RequiredNonNull<T>;
-}
-
-export const ensureNotNull = <T>(obj: T | null | undefined): RequiredNonNull<T> | undefined => {
-    for (const key in obj) {
-        if (obj[key] === null || obj[key] === undefined) {
-            return
+export const ensureProps = <T>(obj: T, props: (keyof T)[]): RequiredNonNull<T> => {
+    //checks if all props are present
+    for (const prop of props) {
+        if (obj[prop] === null || obj[prop] === undefined) {
+            throw new Error(`${prop} is null`);
         }
     }
     return obj as unknown as RequiredNonNull<T>;

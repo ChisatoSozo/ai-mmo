@@ -69,7 +69,7 @@ const main = async () => {
         const outClientTS = join(outClientDirectory, dts);
 
         const serverCommand = `npx grpc_tools_node_protoc --proto_path=api --js_out=import_style=commonjs,binary:${outServerDirectory} --ts_out=service=grpc-node:${outServerDirectory} --grpc_out=${outServerDirectory} ${protoFile}`
-        const clientPBCommand = `npx grpc_tools_node_protoc --proto_path=api --js_out=import_style=commonjs,binary:${outClientDirectory} --grpc-web_out=import_style=commonjs+dts,mode=grpcwebtext:${outClientDirectory} ${protoFile}`
+        const clientPBCommand = `npx grpc_tools_node_protoc --proto_path=api --js_out=import_style=commonjs,binary:${outClientDirectory} --ts_out=service=grpc-web:${outClientDirectory} ${protoFile}`
         const clientCommand = `npx pbjs -t static-module -o ${outClientJS} -path=api ${protoFile} && npx pbts -o ${outClientTS} ${outClientJS}`;
         await shell(serverCommand);
         await shell(clientPBCommand);

@@ -17,6 +17,6 @@ message PQuaternion {
 }
 
 message Chunk {
-    uint32 x = 1;
-    uint32 z = 2;
+    int32 x = 1;
+    int32 z = 2;
 }

@@ -1,5 +1,4 @@
 import * as grpc from "grpc";
-import { sendUnaryData, ServerUnaryCall } from 'grpc';
 import * as jwt from 'jsonwebtoken';
 import { TERRAIN_CHUNK_HEIGHT_DIVISOR, TERRAIN_CHUNK_LENGTH, TERRAIN_CHUNK_WIDTH } from './constants';
 import { Chunk } from './protos/common_pb';
@@ -32,38 +31,35 @@ const env = {
     TOKEN_KEY: _env.TOKEN_KEY,
 }
 
-
-const authUsernameUnary = <T, S>(call: ServerUnaryCall<T>, callback: sendUnaryData<S>): string | false => {
+const authUsernameDuplex = <T, S>(call: grpc.ServerDuplexStream<T, S>): string | false => {
     try {
         const token = call.metadata.get('authorization')[0] as string;
         const decoded = jwt.verify(token, env.TOKEN_KEY) as jwt.JwtPayload;
         return decoded.username;
     }
     catch (err: any) {
-        callback({
-            code: grpc.status.UNAUTHENTICATED,
-            name: 'UNAUTHENTICATED',
-            message: err.message,
-        }, null);
+        call.destroy(new Error("UNAUTHENTICATED"));
         return false;
     }
 }
 
 //@ts-ignore
 export class TerrainServer implements ITerrainServer {
-    get(call: ServerUnaryCall<Chunk>, callback: sendUnaryData<TerrainChunk>) {
-        const username = authUsernameUnary(call, callback);
+    get(call: grpc.ServerDuplexStream<Chunk, TerrainChunk>) {
+        const username = authUsernameDuplex(call);
         if (!username) return;
 
-        const terrainArray = new Uint16Array(TERRAIN_CHUNK_WIDTH * TERRAIN_CHUNK_LENGTH);
-        const terrainBytes = Buffer.from(terrainArray.buffer);
-        const terrain = new TerrainChunk();
-        terrain.setChunk(call.request)
-        terrain.setData(terrainBytes);
-        terrain.setLength(TERRAIN_CHUNK_LENGTH);
-        terrain.setWidth(TERRAIN_CHUNK_WIDTH);
-        terrain.setHeight(TERRAIN_CHUNK_HEIGHT_DIVISOR);
-        callback(null, terrain);
+        call.on("data", chunk => {
+            const terrainArray = new Uint16Array(TERRAIN_CHUNK_WIDTH * TERRAIN_CHUNK_LENGTH);
+            const terrainBytes = Buffer.from(terrainArray.buffer);
+            const terrain = new TerrainChunk();
+            terrain.setChunk(chunk)
+            terrain.setData(terrainBytes);
+            terrain.setLength(TERRAIN_CHUNK_LENGTH);
+            terrain.setWidth(TERRAIN_CHUNK_WIDTH);
+            terrain.setHeight(TERRAIN_CHUNK_HEIGHT_DIVISOR);
+            call.write(terrain);
+        });
     }
 }
 
