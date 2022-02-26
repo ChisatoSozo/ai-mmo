@@ -41,7 +41,7 @@ export const generateHeightmap = (chunk: Chunk) => {
 
     const terrain = new TerrainChunk()
     terrain.setChunk(chunk)
-    terrain.setData(Buffer.from(heightmap.buffer))
+    terrain.setData(new Uint8Array(heightmap.buffer))
     terrain.setLength(TERRAIN_CHUNK_LENGTH)
     terrain.setWidth(TERRAIN_CHUNK_WIDTH)
     terrain.setHeight(TERRAIN_CHUNK_HEIGHT)

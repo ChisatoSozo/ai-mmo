@@ -42,15 +42,15 @@ export const useTerrainMaterial = (
             float u = uFull - floor(uFull);
             float v = vFull - floor(vFull);
 
-            float uIndex = mod(uFull, ${chunkSize}.) - (${chunksPerDirection}.* ${renderDistance}.);
-            float vIndex = mod(vFull, ${chunkSize}.) - (${chunksPerDirection}.* ${renderDistance}.);
+            float uIndex = floor(mod(uFull, ${chunkSize}.) - (${chunksPerDirection}.* ${renderDistance}.));
+            float vIndex = floor(mod(vFull, ${chunkSize}.) - (${chunksPerDirection}.* ${renderDistance}.));
             
             int textureIndex = int(uIndex + vIndex * ${renderDistance * 2 + 1}.);
 
             vec4 heightVec = arrayTexture(heightmaps, textureIndex, vec2(u, v));
 
             //get the height of the current position, heights are packed in xyzw
-            int heightIndex = int(u * ${chunkSize}.) % (${chunkSize} / 4);
+            int heightIndex = int(floor(u * ${chunkSize}.)) % (${chunkSize} / 4);
 
             float height = heightVec.x;
             if(heightIndex == 1) {
@@ -62,7 +62,7 @@ export const useTerrainMaterial = (
             }
 
             positionUpdated.y = height * ${height}.;
-            debugColor = vec4(height,height , height, 1.);
+            debugColor = vec4(height, 0., 0., 1.);
         `)
 
         terrainMaterial.Fragment_Begin(glsl`

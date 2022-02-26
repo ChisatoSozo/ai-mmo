@@ -9,3 +9,9 @@ export const staticCastUint8ArrayToUint32Array = (arr: Uint8Array): Uint32Array 
     const uint32Array = new Uint32Array(positionBuffer)
     return uint32Array
 }
+
+export const staticCastUint8ArrayToUint16Array = (arr: Uint8Array): Uint16Array => {
+    const positionBuffer = arr.buffer.slice(arr.byteOffset, arr.byteLength + arr.byteOffset)
+    const uint16Array = new Uint16Array(positionBuffer)
+    return uint16Array
+}

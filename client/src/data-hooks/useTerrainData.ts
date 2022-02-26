@@ -7,6 +7,7 @@ import { Chunk } from '../protos/common_pb'
 import { terrain } from '../protos/terrain'
 import { TerrainMeshRequest } from '../protos/terrain_pb'
 import { TerrainClient } from '../protos/terrain_pb_service'
+import { staticCastUint8ArrayToUint16Array } from '../utils/BinaryUtils'
 import { hashChunk } from '../utils/HashFunctions'
 import { makeBidi, pFetch } from '../utils/NetworkTransformers'
 import { ensureProps, requestAllStream, staticCastFromGoogle, staticCastToGoogle } from '../utils/PBUtils'
@@ -123,7 +124,7 @@ export const useTerrainData = (
                 if (!prevProcessedTerrainChunks[key]) {
                     const terrainChunk = ensureProps(terrainChunks[key], ['chunk', 'data', 'width', 'length', 'height'])
 
-                    const array = new Uint16Array(terrainChunk.data)
+                    const array = staticCastUint8ArrayToUint16Array(terrainChunk.data)
                     const heightmap = new RawTexture(
                         array,
                         terrainChunk.width / 4,
@@ -132,7 +133,7 @@ export const useTerrainData = (
                         scene,
                         undefined,
                         undefined,
-                        undefined,
+                        Engine.TEXTURE_NEAREST_SAMPLINGMODE,
                         Engine.TEXTURETYPE_UNSIGNED_SHORT_4_4_4_4
                     )
                     const processedTerrainChunk: ProcessedTerrainChunk = {
