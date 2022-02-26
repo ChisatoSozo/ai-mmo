@@ -126,15 +126,15 @@ export const useTerrainData = (
 
                     const array = staticCastUint8ArrayToUint16Array(terrainChunk.data)
                     const heightmap = new RawTexture(
-                        array,
-                        terrainChunk.width / 4,
+                        new Float32Array(array),
+                        terrainChunk.width,
                         terrainChunk.length,
-                        Engine.TEXTUREFORMAT_RGBA,
+                        Engine.TEXTUREFORMAT_R,
                         scene,
                         undefined,
                         undefined,
                         Engine.TEXTURE_NEAREST_SAMPLINGMODE,
-                        Engine.TEXTURETYPE_UNSIGNED_SHORT_4_4_4_4
+                        Engine.TEXTURETYPE_FLOAT
                     )
                     const processedTerrainChunk: ProcessedTerrainChunk = {
                         chunk: terrainChunk.chunk,

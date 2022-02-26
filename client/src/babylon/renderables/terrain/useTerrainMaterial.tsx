@@ -52,15 +52,7 @@ export const useTerrainMaterial = (
             //get the height of the current position, heights are packed in xyzw
             int heightIndex = int(floor(u * ${chunkSize}.)) % (${chunkSize} / 4);
 
-            float height = heightVec.x;
-            if(heightIndex == 1) {
-                height = heightVec.y;
-            } else if(heightIndex == 2) {
-                height = heightVec.z;
-            } else if(heightIndex == 3) {
-                height = heightVec.w;
-            }
-
+            float height = heightVec.x / 65536.;
             positionUpdated.y = height * ${height}.;
             debugColor = vec4(height, 0., 0., 1.);
         `)
@@ -70,8 +62,10 @@ export const useTerrainMaterial = (
         `)
 
         terrainMaterial.Fragment_Before_Fog(glsl`
-            color.rgb = debugColor.xyz;
+            // color.rgb = debugColor.xyz;
         `)
+
+        terrainMaterial.wireframe = true
 
         return terrainMaterial
     }, [scene, currentTerrainChunks, renderDistance, height, chunkSize])

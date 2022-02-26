@@ -9,7 +9,7 @@ const getCoordinate = (chunk: Chunk, i, j) => {
 }
 
 const heightFromCoordinate = ({ x, z }: { x: number; z: number }) => {
-    return Math.sin(x / 10) * Math.cos(z / 10)
+    return x + z
 }
 
 const heightToUint16 = (height: number) => {
