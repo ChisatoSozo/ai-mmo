@@ -16,12 +16,9 @@ message TerrainMeshRequest {
     repeated float lods = 2;
 }
 
-message PMesh {
-    bytes positions = 1;
-    bytes indices = 2;
-}
+
 
 service Terrain {
     rpc Get(stream common.Chunk) returns (stream TerrainChunk) {};
-    rpc GetMesh(TerrainMeshRequest) returns (PMesh) {};
+    rpc GetMesh(TerrainMeshRequest) returns (common.PMesh) {};
 }

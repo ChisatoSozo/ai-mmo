@@ -1,7 +1,7 @@
 import { spawn } from 'child_process'
 import { existsSync } from 'fs'
 import * as os from 'os'
-import { ProxyReply, ProxyRequestList } from './protos/proxy_manager_pb'
+import { ProxyReply, ProxyRequest, ProxyRequestList } from './protos/proxy_manager_pb'
 
 const _env: { [key: string]: string } = {
     PROXY_MANAGER_DYNAMIC_PORTS_START: process.env.PROXY_MANAGER_DYNAMIC_PORTS_START || '',
@@ -35,10 +35,14 @@ const shell = (command: string) => {
     })
 }
 
-let currentDynamicFrontendPort = 10501
+let currentDynamicFrontendPort = env.PROXY_MANAGER_DYNAMIC_PORTS_START
 let forcedPorts = new Set()
 
-export const launchWebProxies = (proxies: ProxyRequestList) => {
+const hashProxyRequest = (request: ProxyRequest) => {
+    return `${request.getBackendHostname}:${request.getBackendPort}:${request.getForceFrontendPort()}`
+}
+
+export const launchWebProxies = (proxies: ProxyRequestList, onlineProxies: { [key: string]: ProxyReply }) => {
     if (!existsSync('/usr/local/bin/grpcwebproxy')) {
         throw new Error('grpcwebproxy not found')
     }
@@ -50,6 +54,11 @@ export const launchWebProxies = (proxies: ProxyRequestList) => {
     const hostname = os.hostname()
 
     return proxies.getProxyList().map((proxy) => {
+        const hash = hashProxyRequest(proxy)
+        if (onlineProxies[hash]) {
+            return onlineProxies[hash]
+        }
+
         const forcedPort = proxy.getForceFrontendPort()
         let frontendPort = 0
 
@@ -82,6 +91,8 @@ export const launchWebProxies = (proxies: ProxyRequestList) => {
         response.setBackendPort(backendPort)
         response.setFrontendHostname(hostname)
         response.setFrontendPort(frontendPort)
+
+        onlineProxies[hash] = response
 
         return response
     })

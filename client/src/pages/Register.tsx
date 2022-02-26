@@ -13,9 +13,25 @@ import { AuthenticationForm } from '../protos/login_pb'
 import { LoginClient } from '../protos/login_pb_service'
 import { staticCastToGoogle } from '../utils/PBUtils'
 
+const _env: { [key: string]: string } = {
+    REACT_APP_LOGIN_HOSTNAME: window.location.hostname || '',
+    REACT_APP_LOGIN_FRONTEND_PORT: process.env.REACT_APP_LOGIN_FRONTEND_PORT || '',
+}
+
+Object.keys(_env).forEach((key) => {
+    if (!_env[key]) {
+        throw new Error(`Missing environment variable ${key}`)
+    }
+})
+
+const env = {
+    REACT_APP_LOGIN_HOSTNAME: _env.REACT_APP_LOGIN_HOSTNAME,
+    REACT_APP_LOGIN_FRONTEND_PORT: parseInt(_env.REACT_APP_LOGIN_FRONTEND_PORT),
+}
+
 export const Register: React.FC = () => {
     const loginClient = useMemo(() => {
-        const LOGIN_URI = `http://${process.env.REACT_APP_LOGIN_HOSTNAME}:${process.env.REACT_APP_LOGIN_FRONTEND_PORT}`
+        const LOGIN_URI = `http://${env.REACT_APP_LOGIN_HOSTNAME}:${env.REACT_APP_LOGIN_FRONTEND_PORT}`
         console.log(LOGIN_URI)
         return new LoginClient(LOGIN_URI)
     }, [])

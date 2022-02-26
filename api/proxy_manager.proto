@@ -22,6 +22,10 @@ message ProxyReplyList {
     repeated ProxyReply proxy = 1;
 }
 
+message HeartbeatReply {
+    boolean status = 1;
+}
+
 service ProxyManager {
     rpc Put(ProxyRequestList) returns (ProxyReplyList);
 }

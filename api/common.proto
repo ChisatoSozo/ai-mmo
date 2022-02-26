@@ -16,6 +16,11 @@ message PQuaternion {
   float w = 4;
 }
 
+message PMesh {
+  bytes positions = 1;
+  bytes indices = 2;
+}
+
 message Chunk {
     int32 x = 1;
     int32 z = 2;

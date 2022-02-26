@@ -6,11 +6,27 @@ import { Empty } from '../protos/common_pb'
 import { ListOfServers, Server } from '../protos/server_list_pb'
 import { ServerListClient } from '../protos/server_list_pb_service'
 
+const _env: { [key: string]: string } = {
+    REACT_APP_SERVER_LIST_HOSTNAME: window.location.hostname || '',
+    REACT_APP_SERVER_LIST_FRONTEND_PORT: process.env.REACT_APP_SERVER_LIST_FRONTEND_PORT || '',
+}
+
+Object.keys(_env).forEach((key) => {
+    if (!_env[key]) {
+        throw new Error(`Missing environment variable ${key}`)
+    }
+})
+
+const env = {
+    REACT_APP_SERVER_LIST_HOSTNAME: _env.REACT_APP_SERVER_LIST_HOSTNAME,
+    REACT_APP_SERVER_LIST_FRONTEND_PORT: parseInt(_env.REACT_APP_SERVER_LIST_FRONTEND_PORT),
+}
+
 export const ServerList = () => {
     const username = useUsername()
     const [serverList, setServerList] = useState<ListOfServers.AsObject>()
     useEffect(() => {
-        const SERVER_LIST_URI = `http://${process.env.REACT_APP_SERVER_LIST_HOSTNAME}:${process.env.REACT_APP_SERVER_LIST_FRONTEND_PORT}`
+        const SERVER_LIST_URI = `http://${env.REACT_APP_SERVER_LIST_HOSTNAME}:${env.REACT_APP_SERVER_LIST_FRONTEND_PORT}`
         const serverListClient = new ServerListClient(SERVER_LIST_URI)
         serverListClient.get(new Empty(), new grpc.Metadata(), (err, response) => {
             if (err) {

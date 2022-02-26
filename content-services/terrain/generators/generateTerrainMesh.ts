@@ -1,4 +1,5 @@
-import { PMesh, TerrainMeshRequest } from '../protos/terrain_pb'
+import { PMesh } from '../protos/common_pb'
+import { TerrainMeshRequest } from '../protos/terrain_pb'
 
 type SquareType =
     | 'bottomLeftCorner'
@@ -287,7 +288,7 @@ export const generateTerrainMesh = (request: TerrainMeshRequest) => {
                 } else {
                     positionsMap[positionLookup] = curIndex
                     indicies.push(curIndex)
-                    positions.push(i + (resolution - 1) / 2, 0, j + (resolution - 1) / 2)
+                    positions.push(i, 0, j)
                     curIndex++
                 }
             })
@@ -300,8 +301,8 @@ export const generateTerrainMesh = (request: TerrainMeshRequest) => {
     const positionsFloat32 = new Float32Array(positions)
     const indiciesUint32 = new Uint32Array(indicies)
 
-    const positionsBytes = new Uint8Array(positionsFloat32)
-    const indiciesBytes = new Uint8Array(indiciesUint32)
+    const positionsBytes = new Uint8Array(positionsFloat32.buffer)
+    const indiciesBytes = new Uint8Array(indiciesUint32.buffer)
 
     const mesh = new PMesh()
     mesh.setPositions(positionsBytes)

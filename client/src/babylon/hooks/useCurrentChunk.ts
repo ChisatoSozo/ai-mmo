@@ -9,8 +9,8 @@ export const useCurrentChunk = (chunkSize: number) => {
         const camera = scene.activeCamera
         if (!camera) return
         const chunk = {
-            x: Math.floor(camera.position.x / chunkSize),
-            z: Math.floor(camera.position.z / chunkSize),
+            x: Math.floor((camera.position.x + chunkSize / 2) / chunkSize),
+            z: Math.floor((camera.position.z + chunkSize / 2) / chunkSize),
         }
         if (currentChunk && currentChunk.x === chunk.x && currentChunk.z === chunk.z) return
         setCurrentChunk(chunk)

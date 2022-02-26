@@ -7,7 +7,7 @@
         "build": "ts-node scripts/protos.ts && docker-compose build",
         "start": "docker-compose up",
         "postinstall": "npm run pushUtils && ts-node scripts/install.ts",
-        "pushUtils": "ts-node scripts/pushUtils.ts"
+        "update": "ts-node scripts/pushUtils.ts"
     },
     "author": "",
     "license": "ISC",

@@ -12,7 +12,7 @@ import { makeBidi, pFetch } from '../utils/NetworkTransformers'
 import { ensureProps, requestAllStream, staticCastFromGoogle, staticCastToGoogle } from '../utils/PBUtils'
 
 const _env: { [key: string]: string } = {
-    REACT_APP_TERRAIN_HOSTNAME: process.env.REACT_APP_TERRAIN_HOSTNAME || '',
+    REACT_APP_TERRAIN_HOSTNAME: window.location.hostname || '',
     REACT_APP_TERRAIN_FRONTEND_PORT: process.env.REACT_APP_TERRAIN_FRONTEND_PORT || '',
 }
 
@@ -40,10 +40,10 @@ export interface ProcessedTerrainChunk {
 
 export interface TerrainData {
     processedTerrainChunks: { [key: string]: ProcessedTerrainChunk }
-    terrainMesh: terrain.IPMesh | undefined
+    terrainMesh: common.IPMesh | undefined
 }
 
-export const useTerrain = (
+export const useTerrainData = (
     chunk: common.IChunk,
     renderDistance: number,
     terrainResolution: number,
@@ -155,12 +155,13 @@ export const useTerrain = (
         })
     }, [terrainChunks, scene])
 
-    const [terrainMesh, setTerrainMesh] = useState<terrain.IPMesh>()
+    const [terrainMesh, setTerrainMesh] = useState<common.IPMesh>()
 
     useEffect(() => {
         const getTerrainMesh = async () => {
             const terrainMeshRequest = new terrain.TerrainMeshRequest()
-            terrainMeshRequest.resolution = terrainResolution
+            terrainMeshRequest.resolution = terrainResolution * (1 + renderDistance * 2)
+            console.log(terrainMeshRequest.resolution)
             terrainMeshRequest.lods = lods
 
             const message = staticCastToGoogle<TerrainMeshRequest>(terrainMeshRequest, TerrainMeshRequest)
@@ -168,12 +169,12 @@ export const useTerrain = (
             if (!reply) {
                 throw new Error('No reply from terrain server for mesh request')
             }
-            const terrainMeshFromNetwork = staticCastFromGoogle<terrain.PMesh>(reply, terrain.PMesh)
+            const terrainMeshFromNetwork = staticCastFromGoogle<common.PMesh>(reply, common.PMesh)
             setTerrainMesh(terrainMeshFromNetwork)
         }
 
         getTerrainMesh()
-    }, [client, lods, terrainResolution])
+    }, [client, lods, renderDistance, terrainResolution])
 
     return { processedTerrainChunks, terrainMesh }
 }

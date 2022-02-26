@@ -37,7 +37,7 @@ files.forEach((file) => {
             console.log('skipping root package.json')
             return
         }
-        console.log('installing', path)
+        console.log('pushing', path)
 
         if (!path.includes('client')) {
             require('child_process').execSync(`rm -rf ${path}/commonUtils.ts`)

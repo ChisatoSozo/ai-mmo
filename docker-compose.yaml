@@ -68,18 +68,3 @@ services:
         depends_on:
             - server_list
             - proxy_manager
-
-    instance2:
-        build: instance-services
-        environment:
-            - PROXY_MANAGER_HOSTNAME
-            - PROXY_MANAGER_PORT
-            - INSTANCE_HOSTNAME
-            - INSTANCE_BASE_PORT
-            - SERVER_LIST_HOSTNAME
-            - SERVER_LIST_PORT
-            - TOKEN_KEY
-        network_mode: host
-        depends_on:
-            - server_list
-            - proxy_manager

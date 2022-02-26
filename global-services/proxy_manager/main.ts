@@ -1,7 +1,7 @@
 import * as grpc from 'grpc'
 import { launchWebProxies } from './launchWebProxy'
 import { IProxyManagerServer, ProxyManagerService } from './protos/proxy_manager_grpc_pb'
-import { ProxyReplyList, ProxyRequestList } from './protos/proxy_manager_pb'
+import { ProxyReply, ProxyReplyList, ProxyRequestList } from './protos/proxy_manager_pb'
 
 const _env: { [key: string]: string } = {
     PROXY_MANAGER_PORT: process.env.PROXY_MANAGER_PORT || '',
@@ -21,9 +21,11 @@ const env = {
 
 //@ts-ignore
 export class ProxyManagerServer implements IProxyManagerServer {
+    onlineProxies: { [key: string]: ProxyReply } = {}
+
     put(call: grpc.ServerUnaryCall<ProxyRequestList>, callback: grpc.sendUnaryData<ProxyReplyList>) {
         try {
-            const proxies = launchWebProxies(call.request)
+            const proxies = launchWebProxies(call.request, this.onlineProxies)
             const response = new ProxyReplyList()
             response.setProxyList(proxies)
             callback(null, response)

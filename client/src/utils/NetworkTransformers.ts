@@ -97,7 +97,13 @@ export const pFetch = async <Input extends Message, Output extends Message>(
     input: Input,
     method: UnaryRequest
 ): Promise<Output | null> => {
-    const metadata = new grpc.Metadata()
+    const token = localStorage.getItem('token')
+
+    if (!token) {
+        throw new Error('No token found')
+    }
+
+    const metadata = new grpc.Metadata({ authorization: token })
     return new Promise<Output | null>((resolve, reject) => {
         method(input, metadata, (error, responseMessage: Output | null) => {
             if (error) {

@@ -1,10 +1,10 @@
 import * as grpc from 'grpc'
 import { authUsername, authUsernameDuplex, constructProxy } from './commonUtils'
-import { generateHeightmap } from './generators/heightmap'
-import { generateTerrainMesh } from './generators/terrainMesh'
-import { Chunk } from './protos/common_pb'
+import { generateHeightmap } from './generators/generateHeightmap'
+import { generateTerrainMesh } from './generators/generateTerrainMesh'
+import { Chunk, PMesh } from './protos/common_pb'
 import { ITerrainServer, TerrainService } from './protos/terrain_grpc_pb'
-import { PMesh, TerrainChunk, TerrainMeshRequest } from './protos/terrain_pb'
+import { TerrainChunk, TerrainMeshRequest } from './protos/terrain_pb'
 
 const _env: { [key: string]: string } = {
     PROXY_MANAGER_HOSTNAME: process.env.PROXY_MANAGER_HOSTNAME || '',
