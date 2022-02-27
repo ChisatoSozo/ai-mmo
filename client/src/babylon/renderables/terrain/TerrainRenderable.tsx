@@ -11,15 +11,7 @@ interface TerrainProps {
     terrainData: TerrainData
     chunkSize: number
     chunkHeight: number
-}
-
-const hashFloat = (x?: number | null) => {
-    // returns a psudo-random number between 0 and 1
-
-    const number = 321461246124.25712836582
-    const hash = (Math.abs(Math.sin(x || 0)) * number) % 1
-    console.log(hash)
-    return hash
+    lods: number[]
 }
 
 export const TerrainRenderable: React.FC<TerrainProps> = ({
@@ -28,6 +20,7 @@ export const TerrainRenderable: React.FC<TerrainProps> = ({
     terrainData,
     chunkSize,
     chunkHeight,
+    lods,
 }) => {
     const [currentTerrainChunks, setCurrentTerrainChunks] =
         useState<{ root: common.IChunk; data: ProcessedTerrainChunk[] }>()
@@ -52,7 +45,7 @@ export const TerrainRenderable: React.FC<TerrainProps> = ({
         setCurrentTerrainChunks({ root: chunk, data: chunks })
     }, [chunk, renderDistance, terrainData])
 
-    const terrainMaterial = useTerrainMaterial(currentTerrainChunks, renderDistance, chunkSize, chunkHeight)
+    const terrainMaterial = useTerrainMaterial(currentTerrainChunks, renderDistance, chunkSize, chunkHeight, lods)
     const terrainMesh = useMeshFromP(terrainData.terrainMesh, terrainMaterial)
 
     return <mesh name="terrain" source={terrainMesh} />

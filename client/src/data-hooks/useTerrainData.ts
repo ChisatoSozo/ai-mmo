@@ -131,9 +131,9 @@ export const useTerrainData = (
                         terrainChunk.length,
                         Engine.TEXTUREFORMAT_R,
                         scene,
+                        false,
                         undefined,
                         undefined,
-                        Engine.TEXTURE_NEAREST_SAMPLINGMODE,
                         Engine.TEXTURETYPE_FLOAT
                     )
                     const processedTerrainChunk: ProcessedTerrainChunk = {

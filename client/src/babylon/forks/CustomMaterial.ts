@@ -3,6 +3,7 @@
 /* eslint-disable @typescript-eslint/consistent-type-assertions */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-array-constructor */
+import { Vector3 } from '@babylonjs/core'
 import { Effect } from '@babylonjs/core/Materials/effect'
 import { MaterialDefines } from '@babylonjs/core/Materials/materialDefines'
 import { StandardMaterial } from '@babylonjs/core/Materials/standardMaterial'
@@ -281,6 +282,7 @@ export class CustomMaterial extends StandardMaterial {
     }
 
     public AddUniform(name: string, kind: 'sampler2D', param: Texture): CustomMaterial
+    public AddUniform(name: string, kind: 'vec3', param: Vector3): CustomMaterial
     public AddUniform(name: string, kind: string, param: any): CustomMaterial {
         if (!this._customUniform) {
             this._customUniform = new Array()

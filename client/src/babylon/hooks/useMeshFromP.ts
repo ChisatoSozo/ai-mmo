@@ -1,4 +1,4 @@
-import { Material, Mesh, Vector3, VertexBuffer } from '@babylonjs/core'
+import { Material, Mesh, VertexBuffer } from '@babylonjs/core'
 import { useEffect, useState } from 'react'
 import { useScene } from 'react-babylonjs'
 import { common } from '../../protos/common'
@@ -29,7 +29,6 @@ export const useMeshFromP = (pMesh: common.IPMesh | undefined, material?: Materi
         }
 
         mesh.alwaysSelectAsActiveMesh = true
-        mesh.scaling = new Vector3(0.1, 0.1, 0.1)
 
         setMesh((oldMesh) => {
             oldMesh?.dispose()

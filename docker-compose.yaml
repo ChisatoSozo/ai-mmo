@@ -41,18 +41,18 @@ services:
         depends_on:
             - proxy_manager
 
-    terrain:
-        build: content-services/terrain
-        environment:
-            - PROXY_MANAGER_HOSTNAME
-            - PROXY_MANAGER_PORT
-            - TERRAIN_HOSTNAME
-            - TERRAIN_PORT
-            - TERRAIN_FRONTEND_PORT
-            - TOKEN_KEY
-        network_mode: host
-        depends_on:
-            - proxy_manager
+    # terrain:
+    #     build: content-services/terrain
+    #     environment:
+    #         - PROXY_MANAGER_HOSTNAME
+    #         - PROXY_MANAGER_PORT
+    #         - TERRAIN_HOSTNAME
+    #         - TERRAIN_PORT
+    #         - TERRAIN_FRONTEND_PORT
+    #         - TOKEN_KEY
+    #     network_mode: host
+    #     depends_on:
+    #         - proxy_manager
 
     instance:
         build: instance-services
